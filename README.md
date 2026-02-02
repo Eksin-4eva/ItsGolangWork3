@@ -10,9 +10,9 @@
 
 ### Bonus3 : 三层架构设计
 项目结构非常清晰对应三层：
-Controller (api/v1)：接收 HTTP 请求，参数校验<br>Service (service)：核心业务逻辑（分页计算、逻辑判断）<br>DAO (dao)：直接与数据库交互（GORM 操作）<br>
+Controller (api/v1)：接收 HTTP 请求，参数校验，调用 Service。
+Service (service)：核心业务逻辑（分页计算、逻辑判断），调用 DAO。
+DAO (dao)：直接与数据库交互（GORM 操作）。
 
-#### bonus4, 5 还没想好。
-
-
+# bonus4, 5 还没想好, 策划中。
 
