@@ -1,0 +1,228 @@
+basePath: /api/v1
+definitions:
+  service.BatchTaskService:
+    properties:
+      delete_type:
+        type: integer
+      target_status:
+        type: integer
+    type: object
+  service.CreateTaskService:
+    properties:
+      content:
+        type: string
+      status:
+        description: 0未完成 1已完成
+        type: integer
+      title:
+        type: string
+    type: object
+  service.UpdateTaskService:
+    properties:
+      content:
+        type: string
+      status:
+        description: 0未完成 1已完成
+        type: integer
+      title:
+        type: string
+    type: object
+  utils.Response:
+    properties:
+      data: {}
+      error:
+        type: string
+      msg:
+        type: string
+      status:
+        type: integer
+    type: object
+host: localhost:8888
+info:
+  contact: {}
+  description: 这是一个基于 Hertz + GORM 的待办事项管理系统
+  title: TodoList API
+  version: "1.0"
+paths:
+  /task/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 根据ID删除单条任务(软删除)
+      parameters:
+      - description: JWT Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 任务ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 删除成功
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 删除任务
+      tags:
+      - 任务管理
+    put:
+      consumes:
+      - application/json
+      description: 修改任务的标题、内容或状态
+      parameters:
+      - description: JWT Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 任务ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 更新信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.UpdateTaskService'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 修改成功
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 更新任务
+      tags:
+      - 任务管理
+  /task/batch_delete:
+    delete:
+      consumes:
+      - application/json
+      description: 一键删除任务 (1:已完成, 2:未完成, 3:全部)
+      parameters:
+      - description: JWT Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 删除类型 (delete_type)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.BatchTaskService'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 批量删除成功
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 批量删除
+      tags:
+      - 任务管理 (批量)
+  /task/batch_update:
+    post:
+      consumes:
+      - application/json
+      description: 一键将所有任务标记为完成或未完成
+      parameters:
+      - description: JWT Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: '目标状态 (target_status: 0或1)'
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.BatchTaskService'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 批量更新成功
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 批量更新状态
+      tags:
+      - 任务管理 (批量)
+  /task/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建一条新的待办事项
+      parameters:
+      - description: JWT Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 任务信息
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/service.CreateTaskService'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: '{"status": 200, "data": null, "msg": "创建成功"}'
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: 创建新任务
+      tags:
+      - 任务管理
+  /task/list:
+    get:
+      consumes:
+      - application/json
+      description: 支持分页、模糊搜索、状态筛选
+      parameters:
+      - description: JWT Token
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 页码 (默认1)
+        in: query
+        name: page_num
+        type: integer
+      - description: 每页条数 (默认10)
+        in: query
+        name: page_size
+        type: integer
+      - description: 搜索关键词
+        in: query
+        name: title
+        type: string
+      - description: 状态筛选 (0未完成, 1已完成)
+        in: query
+        name: status
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 返回列表和总数
+          schema:
+            allOf:
+            - $ref: '#/definitions/utils.Response'
+            - properties:
+                data:
+                  additionalProperties: true
+                  type: object
+              type: object
+      summary: 获取任务列表
+      tags:
+      - 任务管理
+swagger: "2.0"
